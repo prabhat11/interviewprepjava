@@ -1,0 +1,395 @@
+Sorting and Searching Algorithms
+===============================
+
+This file provides an overview, diagrams, and Java code examples for common sorting and searching algorithms.
+
+1. Bubble Sort
+--------------
+Diagram (Step-by-Step with Memory and Comparison):
+Initial: [5, 3, 8, 4, 2]
+
+Pass 1:
+- Compare 5 and 3 (swap): [3, 5, 8, 4, 2]
+- Compare 5 and 8 (no swap): [3, 5, 8, 4, 2]
+- Compare 8 and 4 (swap): [3, 5, 4, 8, 2]
+- Compare 8 and 2 (swap): [3, 5, 4, 2, 8]
+
+Pass 2:
+- Compare 3 and 5 (no swap): [3, 5, 4, 2, 8]
+- Compare 5 and 4 (swap): [3, 4, 5, 2, 8]
+- Compare 5 and 2 (swap): [3, 4, 2, 5, 8]
+
+Pass 3:
+- Compare 3 and 4 (no swap): [3, 4, 2, 5, 8]
+- Compare 4 and 2 (swap): [3, 2, 4, 5, 8]
+
+Pass 4:
+- Compare 3 and 2 (swap): [2, 3, 4, 5, 8]
+
+Best Case Example (Already Sorted):
+Initial: [1, 2, 3, 4, 5]
+- Only one pass needed, no swaps.
+
+Worst Case Example (Reverse Sorted):
+Initial: [5, 4, 3, 2, 1]
+- Every possible pair is swapped in each pass.
+
+Memory Allocation:
+- The array is stored in memory as a contiguous block.
+- Swapping involves temporary storage (e.g., int temp) for each swap.
+- Comparisons are between adjacent elements (arr[j] and arr[j+1]).
+
+Time Complexity:
+- Best: O(n) (when already sorted)
+- Average: O(n^2)
+- Worst: O(n^2)
+Space Complexity: O(1) (in-place)
+
+Java Example:
+```
+public class BubbleSort {
+    public static void sort(int[] arr) {
+        int n = arr.length;
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
+            }
+        }
+    }
+    public static void main(String[] args) {
+        int[] arr = {5, 3, 8, 4, 2};
+        sort(arr);
+        System.out.println(java.util.Arrays.toString(arr));
+    }
+}
+```
+
+2. Quick Sort
+-------------
+Diagram (Step-by-Step with Memory and Comparison):
+Initial: [5, 3, 8, 4, 2]
+Choose pivot (e.g., 2):
+- Partition: [2, 3, 8, 4, 5] (2 is now at correct position)
+- Left: [] (empty), Right: [3, 8, 4, 5]
+
+Recursive Step:
+- Choose pivot in right: 5
+- Partition: [3, 4, 5, 8] (5 is at correct position)
+- Left: [3, 4], Right: [8]
+
+Continue recursively:
+- [3, 4]: pivot 4, partition: [3, 4]
+
+Best Case Example (Balanced Partition):
+Initial: [4, 2, 5, 3, 8]
+- Pivot always splits array into two equal halves.
+
+Worst Case Example (Already Sorted or Reverse Sorted):
+Initial: [1, 2, 3, 4, 5] (pivot always min or max)
+- Each partition only reduces size by 1, leading to O(n^2) calls.
+
+Memory Allocation:
+- The array is in-place; partitioning rearranges elements.
+- Each recursive call uses stack memory.
+- Comparisons are between arr[j] and pivot.
+
+Time Complexity:
+- Best: O(n log n)
+- Average: O(n log n)
+- Worst: O(n^2) (rare, when pivot is always min/max)
+Space Complexity: O(log n) (due to recursion stack)
+
+Java Example:
+```
+public class QuickSort {
+    public static void sort(int[] arr, int low, int high) {
+        if (low < high) {
+            int pi = partition(arr, low, high);
+            sort(arr, low, pi - 1);
+            sort(arr, pi + 1, high);
+        }
+    }
+    private static int partition(int[] arr, int low, int high) {
+        int pivot = arr[high];
+        int i = low - 1;
+        for (int j = low; j < high; j++) {
+            if (arr[j] < pivot) {
+                i++;
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+        int temp = arr[i + 1];
+        arr[i + 1] = arr[high];
+        arr[high] = temp;
+        return i + 1;
+    }
+    public static void main(String[] args) {
+        int[] arr = {5, 3, 8, 4, 2};
+        sort(arr, 0, arr.length - 1);
+        System.out.println(java.util.Arrays.toString(arr));
+    }
+}
+```
+
+3. Binary Search
+----------------
+Diagram (Step-by-Step with Memory and Comparison):
+Sorted array: [2, 3, 4, 5, 8]
+Search for 4:
+- left=0, right=4, mid=2 (arr[2]=4)
+- Compare arr[2] with 4: found!
+
+If searching for 5:
+- left=0, right=4, mid=2 (arr[2]=4)
+- arr[2] < 5, so left=3
+- left=3, right=4, mid=3 (arr[3]=5)
+- arr[3]=5, found!
+
+Best Case Example:
+Search for 4 (middle element): found in first comparison.
+
+Worst Case Example:
+Search for 2 or 8 (at ends): log2(n) comparisons needed.
+
+Memory Allocation:
+- The array is in memory; only a few integer variables (left, right, mid) are used.
+- Comparisons are between arr[mid] and key.
+
+Time Complexity:
+- Best: O(1)
+- Average/Worst: O(log n)
+Space Complexity: O(1) (iterative), O(log n) (recursive)
+
+Java Example:
+```
+public class BinarySearch {
+    public static int search(int[] arr, int key) {
+        int left = 0, right = arr.length - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (arr[mid] == key) return mid;
+            if (arr[mid] < key) left = mid + 1;
+            else right = mid - 1;
+        }
+        return -1;
+    }
+    public static void main(String[] args) {
+        int[] arr = {2, 3, 4, 5, 8};
+        int idx = search(arr, 4);
+        System.out.println("Index of 4: " + idx);
+    }
+}
+```
+
+4. Linear Search
+----------------
+Diagram (Step-by-Step with Memory and Comparison):
+Array: [5, 3, 8, 4, 2]
+Search for 8:
+- Compare arr[0]=5 with 8 (no)
+- Compare arr[1]=3 with 8 (no)
+- Compare arr[2]=8 with 8 (yes, found at index 2)
+
+Best Case Example:
+Search for 5 (first element): found in first comparison.
+
+Worst Case Example:
+Search for 2 (last element) or not present: n comparisons needed.
+
+Memory Allocation:
+- The array is in memory; index variable i is used.
+- Comparisons are between arr[i] and key.
+
+Time Complexity:
+- Best: O(1)
+- Average/Worst: O(n)
+Space Complexity: O(1)
+
+Java Example:
+```
+public class LinearSearch {
+    public static int search(int[] arr, int key) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == key) return i;
+        }
+        return -1;
+    }
+    public static void main(String[] args) {
+        int[] arr = {5, 3, 8, 4, 2};
+        int idx = search(arr, 8);
+        System.out.println("Index of 8: " + idx);
+    }
+}
+```
+
+5. Merge Sort
+-------------
+Diagram (Step-by-Step with Memory and Comparison):
+Initial: [5, 3, 8, 4, 2]
+- Split: [5, 3] and [8, 4, 2]
+- Split [5, 3] -> [5], [3]
+- Merge [5], [3] -> [3, 5]
+- Split [8, 4, 2] -> [8], [4, 2]
+- Split [4, 2] -> [4], [2]
+- Merge [4], [2] -> [2, 4]
+- Merge [8], [2, 4] -> [2, 4, 8]
+- Merge [3, 5], [2, 4, 8] -> [2, 3, 4, 5, 8]
+
+Best, Average, and Worst Case Example:
+Merge sort always splits and merges in O(n log n) time, regardless of input order.
+
+Memory Allocation:
+- Uses extra space for temporary arrays during merge.
+- Comparisons are between elements of left and right subarrays.
+
+Time Complexity:
+- Best/Average/Worst: O(n log n)
+Space Complexity: O(n) (extra space for merging)
+
+Java Example:
+```
+public class MergeSort {
+    public static void sort(int[] arr, int l, int r) {
+        if (l < r) {
+            int m = (l + r) / 2;
+            sort(arr, l, m);
+            sort(arr, m + 1, r);
+            merge(arr, l, m, r);
+        }
+    }
+    private static void merge(int[] arr, int l, int m, int r) {
+        int n1 = m - l + 1;
+        int n2 = r - m;
+        int[] L = new int[n1];
+        int[] R = new int[n2];
+        for (int i = 0; i < n1; i++) L[i] = arr[l + i];
+        for (int j = 0; j < n2; j++) R[j] = arr[m + 1 + j];
+        int i = 0, j = 0, k = l;
+        while (i < n1 && j < n2) {
+            if (L[i] <= R[j]) arr[k++] = L[i++];
+            else arr[k++] = R[j++];
+        }
+        while (i < n1) arr[k++] = L[i++];
+        while (j < n2) arr[k++] = R[j++];
+    }
+    public static void main(String[] args) {
+        int[] arr = {5, 3, 8, 4, 2};
+        sort(arr, 0, arr.length - 1);
+        System.out.println(java.util.Arrays.toString(arr));
+    }
+}
+```
+
+6. Heap Sort
+------------
+Diagram (Step-by-Step with Memory and Comparison):
+Initial: [5, 3, 8, 4, 2]
+- Build max heap: [8, 4, 5, 3, 2]
+- Swap max with last: [2, 4, 5, 3, 8]
+- Heapify: [5, 4, 2, 3, 8]
+- Swap max with second last: [3, 4, 2, 5, 8]
+- Heapify: [4, 3, 2, 5, 8]
+- Continue until sorted: [2, 3, 4, 5, 8]
+
+Best, Average, and Worst Case Example:
+Heap sort always builds a heap and sorts in O(n log n) time, regardless of input order.
+
+Memory Allocation:
+- In-place, uses the array itself as the heap.
+- Comparisons are between parent and child nodes.
+
+Time Complexity:
+- Best/Average/Worst: O(n log n)
+Space Complexity: O(1) (in-place)
+
+Java Example:
+```
+public class HeapSort {
+    public static void sort(int[] arr) {
+        int n = arr.length;
+        for (int i = n / 2 - 1; i >= 0; i--)
+            heapify(arr, n, i);
+        for (int i = n - 1; i > 0; i--) {
+            int temp = arr[0];
+            arr[0] = arr[i];
+            arr[i] = temp;
+            heapify(arr, i, 0);
+        }
+    }
+    private static void heapify(int[] arr, int n, int i) {
+        int largest = i;
+        int l = 2 * i + 1;
+        int r = 2 * i + 2;
+        if (l < n && arr[l] > arr[largest]) largest = l;
+        if (r < n && arr[r] > arr[largest]) largest = r;
+        if (largest != i) {
+            int swap = arr[i];
+            arr[i] = arr[largest];
+            arr[largest] = swap;
+            heapify(arr, n, largest);
+        }
+    }
+    public static void main(String[] args) {
+        int[] arr = {5, 3, 8, 4, 2};
+        sort(arr);
+        System.out.println(java.util.Arrays.toString(arr));
+    }
+}
+```
+
+7. Insertion Sort
+-----------------
+Diagram (Step-by-Step with Memory and Comparison):
+Initial: [5, 3, 8, 4, 2]
+- Insert 3: [3, 5, 8, 4, 2]
+- Insert 8: [3, 5, 8, 4, 2]
+- Insert 4: [3, 4, 5, 8, 2]
+- Insert 2: [2, 3, 4, 5, 8]
+
+Best Case Example (Already Sorted):
+Initial: [1, 2, 3, 4, 5]
+- Only n-1 comparisons, no shifts.
+
+Worst Case Example (Reverse Sorted):
+Initial: [5, 4, 3, 2, 1]
+- Each new element is compared with all previous elements and shifted.
+
+Memory Allocation:
+- In-place, uses a temporary variable for the key.
+- Comparisons are between the key and sorted part of the array.
+
+Time Complexity:
+- Best: O(n) (already sorted)
+- Average/Worst: O(n^2)
+Space Complexity: O(1)
+
+Java Example:
+```
+public class InsertionSort {
+    public static void sort(int[] arr) {
+        int n = arr.length;
+        for (int i = 1; i < n; ++i) {
+            int key = arr[i];
+            int j = i - 1;
+            while (j >= 0 && arr[j] > key) {
+                arr[j + 1] = arr[j];
+                j = j - 1;
+            }
+            arr[j + 1] = key;
+        }
+    }
+    public static void main(String[] args) {
+        int[] arr = {5, 3, 8, 4, 2};
+        sort(arr);
+        System.out.println(java.util.Arrays.toString(arr));
+    }
+}
+```
+
+(You can request more algorithms or code examples for Interpolation Search, etc.)

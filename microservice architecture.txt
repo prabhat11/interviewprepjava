@@ -1,0 +1,40 @@
+Microservices Architecture
+=========================
+
+Microservices architecture is an approach to software development where a 
+large application is built as a suite of small, independent services, 
+each running in its own process and communicating with lightweight mechanisms,
+ often HTTP APIs. Each microservice is focused on a single business capability
+  and can be developed, deployed, and scaled independently.
+
+Key Characteristics:
+- Decentralized data management
+- Independent deployment
+- Technology diversity
+- Fault isolation
+- Scalability
+
+
+Diagram of Microservices Architecture:
+
++-------------------+      +-------------------+      +-------------------+
+|   User Service    |<---->|  API Gateway      |<---->|   Client (UI)     |
++-------------------+      +-------------------+      +-------------------+
+         |                        |                        
+         v                        v                        
++-------------------+      +-------------------+      +-------------------+
+|  Order Service    |      |  Product Service  |      |  Payment Service  |
++-------------------+      +-------------------+      +-------------------+
+         |                        |                        
+         v                        v                        
++-------------------+      +-------------------+      +-------------------+
+|  Database(s)      |      |  Message Broker   |      |  External Services|
++-------------------+      +-------------------+      +-------------------+
+
+Legend:
+- Each box is a microservice or infrastructure component.
+- Services communicate with API Gateway, not directly with each other.
+- API Gateway routes requests to appropriate services.
+- Databases can be per service (decentralized).
+
+This is a simplified diagram. In real-world systems, there may be more services, shared infrastructure (like service discovery, monitoring, logging), and more complex communication patterns.
