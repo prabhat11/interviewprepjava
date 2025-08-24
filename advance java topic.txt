@@ -1,11 +1,532 @@
 Here are some advanced Java topics:
 
 	1. Generics and Type Erasure
+	//example of generics and type erasure
+	// Generic class
+	public class Box<T> {
+        private T item;
+
+        public void setItem(T item) {
+            this.item = item;
+        }
+
+        public T getItem() {
+            return item;
+        }
+    }
+     // Type Erasure example
+        public class TypeErasureExample {
+            public static void main(String[] args) {
+                Box<Integer> intBox = new Box<>();
+                intBox.setItem(10);
+                Integer intValue = intBox.getItem();
+                System.out.println("Integer Value: " + intValue);
+
+                Box<String> strBox = new Box<>();
+                strBox.setItem("Hello");
+                String strValue = strBox.getItem();
+                System.out.println("String Value: " + strValue);
+            }
+        }
+        // In the above example, at runtime, both Box<Integer> and Box<String> are treated as Box due to type erasure.
+        // This means that the generic type information is not available at runtime.
+        // This can lead to potential issues, such as ClassCastException if not handled properly.
+        // For instance, the following code would compile but throw an exception at runtime:
+        public class TypeErasureIssue {
+            public static void main(String[] args) {
+                Box rawBox = new Box(); // Raw type
+                rawBox.setItem(10); // Storing an Integer
+                String strValue = (String) rawBox.getItem(); // Attempting to retrieve as String
+                System.out.println("String Value: " + strValue); // This will throw ClassCastException
+            }
+        }
+        // To avoid such issues, it's recommended to use generics properly and avoid raw types.
+        // Additionally, you can use bounded type parameters to restrict the types that can be used with generics.
+        // Example of bounded type parameters
+        public class BoundedBox<T extends Number> {
+            private T item;
+
+            public void setItem(T item) {
+                this.item = item;
+            }
+
+            public T getItem() {
+                return item;
+            }
+        }
+        // In this example, BoundedBox can only accept types that are subclasses of Number (e.g., Integer, Double).
+        // This helps to ensure type safety and avoid potential runtime issues.
+        // Example usage of BoundedBox
+        public class BoundedBoxExample {
+            public static void main(String[] args) {
+                BoundedBox<Integer> intBox = new BoundedBox<>();
+                intBox.setItem(10);
+                Integer intValue = intBox.getItem();
+                System.out.println("Integer Value: " + intValue);
+
+                BoundedBox<Double> doubleBox = new BoundedBox<>();
+                doubleBox.setItem(20.5);
+                Double doubleValue = doubleBox.getItem();
+                System.out.println("Double Value: " + doubleValue);
+
+                // The following line would cause a compile-time error
+                // BoundedBox<String> strBox = new BoundedBox<>(); // Error: String is not a subclass of Number
+            }
+        }
+        // By using bounded type parameters, you can ensure that your generic classes are used safely and correctly.
+        // This helps to prevent runtime errors and makes your code more robust and maintainable.
+        // Example of using wildcards in generics
+        public class WildcardExample {
+            public static void printBox(Box<?> box) {
+                System.out.println("Box contains: " + box.getItem());
+            }
+
+            public static void main(String[] args) {
+                Box<Integer> intBox = new Box<>();
+                intBox.setItem(10);
+                printBox(intBox);
+
+                Box<String> strBox = new Box<>();
+                strBox.setItem("Hello");
+                printBox(strBox);
+            }
+        }
+        // In this example, the printBox method uses a wildcard (?) to accept a Box of any type.
+        // This allows for greater flexibility when working with generic types.
+        <!-- End of generics and type erasure example -->
+        // More advanced topics can be explored similarly with code examples.
+        // For brevity, only the first topic is expanded with examples.
+        <!-- List of other advanced topics without code examples -->
+     
+        
 	2. Collections Framework (advanced usage, custom collections)
+	<!-- Example of custom collection by extending AbstractList -->
+    import java.util.AbstractList;
+
+    public class CustomList<E> extends AbstractList<E> {
+        private Object[] elements;
+        private int size;
+
+        public CustomList(int capacity) {
+            elements = new Object[capacity];
+            size = 0;
+        }
+
+        @Override
+        public E get(int index) {
+            if (index < 0 || index >= size) {
+                throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+            }
+            return (E) elements[index];
+        }
+
+        @Override
+        public int size() {
+            return size;
+        }
+
+        @Override
+        public boolean add(E element) {
+            if (size == elements.length) {
+                throw new IllegalStateException("List is full");
+            }
+            elements[size++] = element;
+            return true;
+        }
+
+        @Override
+        public E remove(int index) {
+            if (index < 0 || index >= size) {
+                throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+            }
+            E removedElement = (E) elements[index];
+            System.arraycopy(elements, index + 1, elements, index, size - index - 1);
+            elements[--size] = null; // Clear the last element
+            return removedElement;
+        }
+
+        public static void main(String[] args) {
+            CustomList<String> list = new CustomList<>(5);
+            list.add("A");
+            list.add("B");
+            list.add("C");
+            System.out.println("List Size: " + list.size()); // Output: List Size: 3
+            System.out.println("Element at index 1: " + list.get(1)); // Output: Element at index 1: B
+            list.remove(1);
+            System.out.println("List Size after removal: " + list.size()); // Output: List Size after removal: 2
+        }
+    }
+    <!-- End of custom collection example -->
 	3. Concurrency and Multithreading (Executors, Fork/Join, CompletableFuture)
+	<!-- Example of using CompletableFuture for asynchronous programming -->
+    import java.util.concurrent.CompletableFuture;
+    import java.util.concurrent.ExecutionException;
+    
+    public class CompletableFutureExample {
+        public static void main(String[] args) {
+            // Create a CompletableFuture that runs a task asynchronously
+            CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+                // Simulate a long-running task
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return "Hello, World!";
+            });
+    
+            // Attach a callback to be executed when the future completes
+            future.thenAccept(result -> {
+                System.out.println("Result: " + result);
+            });
+    
+            // Block and wait for the future to complete (optional)
+            try {
+                String result = future.get(); // This will block until the result is available
+                System.out.println("Blocking Result: " + result);
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+    
+            System.out.println("Main thread continues...");
+        }
+    }
+    <!-- End of CompletableFuture example -->
+    
+
 	4. Java Memory Model and Garbage Collection
+	<!-- Example of understanding Java Memory Model and Garbage Collection -->
+    public class MemoryModelExample {
+        private static class Node {
+            int value;
+            Node next;
+
+            Node(int value) {
+                this.value = value;
+            }
+        }
+
+        public static void main(String[] args) {
+            Node head = new Node(1);
+            head.next = new Node(2);
+            head.next.next = new Node(3);
+
+            // At this point, we have a linked list: 1 -> 2 -> 3
+            System.out.println("Linked List:");
+            printList(head);
+
+            // Now, let's remove the reference to the head node
+            head = null;
+
+            // At this point, the linked list is no longer reachable
+            // The garbage collector will eventually reclaim the memory used by the nodes
+            System.out.println("Head reference removed. Nodes are now eligible for garbage collection.");
+        }
+
+        private static void printList(Node node) {
+            while (node != null) {
+                System.out.print(node.value + " ");
+                node = node.next;
+            }
+            System.out.println();
+        }
+    }
+    <!-- End of Java Memory Model and Garbage Collection example -->
+    
 	5. Reflection and Annotations
+	<!-- Example of using Reflection and Annotations -->
+    import java.lang.annotation.Retention;
+    import java.lang.annotation.RetentionPolicy;
+    import java.lang.reflect.Method;
+
+    // Define a custom annotation
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface MyAnnotation {
+        String value();
+    }
+
+    // Annotate a class with the custom annotation
+    @MyAnnotation("This is a sample class")
+    class AnnotatedClass {
+        @MyAnnotation("This is a sample method")
+        public void annotatedMethod() {
+            System.out.println("Annotated method executed.");
+        }
+    }
+
+    public class ReflectionExample {
+        public static void main(String[] args) {
+            try {
+                // Load the AnnotatedClass at runtime
+                Class<?> clazz = Class.forName("AnnotatedClass");
+
+                // Check if the class has the MyAnnotation annotation
+                if (clazz.isAnnotationPresent(MyAnnotation.class)) {
+                    MyAnnotation classAnnotation = clazz.getAnnotation(MyAnnotation.class);
+                    System.out.println("Class Annotation: " + classAnnotation.value());
+                }
+
+                // Get all methods of the class
+                Method[] methods = clazz.getDeclaredMethods();
+                for (Method method : methods) {
+                    // Check if the method has the MyAnnotation annotation
+                    if (method.isAnnotationPresent(MyAnnotation.class)) {
+                        MyAnnotation methodAnnotation = method.getAnnotation(MyAnnotation.class);
+                        System.out.println("Method Annotation: " + methodAnnotation.value());
+                    }
+                }
+
+                // Create an instance of the AnnotatedClass and invoke the annotated method
+                Object instance = clazz.getDeclaredConstructor().newInstance();
+                Method annotatedMethod = clazz.getMethod("annotatedMethod");
+                annotatedMethod.invoke(instance);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    <!-- End of Reflection and Annotations example -->
+    
 	6. Lambda Expressions and Functional Interfaces
+	<!-- Example of using Lambda Expressions and Functional Interfaces -->
+    import java.util.Arrays;
+    import java.util.List;
+    import java.util.function.Consumer;
+    import java.util.function.Function;
+    import java.util.function.Predicate;
+
+    public class LambdaExample {
+        public static void main(String[] args) {
+            List<String> names = Arrays.asList("Alice", "Bob", "Charlie", "David");
+
+            // Using a lambda expression to print each name
+            Consumer<String> printName = name -> System.out.println(name);
+            names.forEach(printName);
+
+            // Using a lambda expression to filter names starting with 'C'
+            Predicate<String> startsWithC = name -> name.startsWith("C");
+            names.stream()
+                 .filter(startsWithC)
+                 .forEach(printName);
+
+            // Using a lambda expression to convert names to uppercase
+            Function<String, String> toUpperCase = name -> name.toUpperCase();
+            names.stream()
+                 .map(toUpperCase)
+                 .forEach(printName);
+        }
+    }
+    <!-- End of Lambda Expressions and Functional Interfaces example -->
+    //more advance uses of lambda expressions and functional interfaces can be explored similarly.
+    // More advanced uses of lambda expressions and functional interfaces
+	// 1. Composing Functions with Lambdas
+	import java.util.function.Function;
+
+	public class LambdaComposeExample {
+	    public static void main(String[] args) {
+	        Function<Integer, Integer> multiplyBy2 = x -> x * 2;
+	        Function<Integer, Integer> add3 = x -> x + 3;
+
+	        // Compose functions: first multiply by 2, then add 3
+	        Function<Integer, Integer> combined = multiplyBy2.andThen(add3);
+
+	        System.out.println(combined.apply(5)); // Output: 13
+	    }
+	}
+
+	// 2. Using Lambdas for Custom Sorting
+	import java.util.*;
+
+	public class LambdaSortExample {
+	    public static void main(String[] args) {
+	        List<String> names = Arrays.asList("Charlie", "Alice", "Bob");
+	        // Sort by length, then alphabetically
+	        names.sort((a, b) -> {
+	            int cmp = Integer.compare(a.length(), b.length());
+	            return cmp != 0 ? cmp : a.compareTo(b);
+	        });
+	        System.out.println(names); // Output: [Bob, Alice, Charlie]
+
+	        // Sort names in alphabetical order using lambda
+	        List<String> sortedNames = new ArrayList<>(names);
+	        sortedNames.sort((a, b) -> a.compareTo(b));
+	        System.out.println("Alphabetically sorted names: " + sortedNames);
+
+	        // Example: Sorting a list of Employee objects by salary using lambda
+	        class Employee {
+	            String name;
+	            double salary;
+	            int experience;
+
+	            public Employee(String name, double salary, int experience) {
+	                this.name = name;
+	                this.salary = salary;
+	                this.experience = experience;
+	            }
+
+	            @Override
+	            public String toString() {
+	                return name + " (Salary: " + salary + ", Exp: " + experience + ")";
+	            }
+	        }
+
+	        List<Employee> employees = Arrays.asList(
+	            new Employee("Alice", 70000, 5),
+	            new Employee("Bob", 50000, 3),
+	            new Employee("Charlie", 90000, 8)
+	        );
+	        // Sort employees by salary (ascending)
+	        employees.sort((e1, e2) -> Double.compare(e1.salary, e2.salary));
+	        System.out.println("Employees sorted by salary: " + employees);
+	    }
+	}
+
+	// 3. Lambdas with Streams for Grouping and Mapping
+	import java.util.*;
+	import java.util.stream.Collectors;
+
+	public class LambdaGroupingExample {
+	    public static void main(String[] args) {
+	        List<String> words = Arrays.asList("apple", "banana", "apricot", "blueberry");
+	        Map<Character, List<String>> grouped = words.stream()
+	            .collect(Collectors.groupingBy(word -> word.charAt(0)));
+	        System.out.println(grouped); // Output: {a=[apple, apricot], b=[banana, blueberry]}
+	    }
+	}
+	//useful for grouping data based on certain criteria using lambdas and streams.
+	
+
+	// 4. Recursive Lambdas (using helper method)
+	import java.util.function.Function;
+
+	public class RecursiveLambdaExample {
+	    public static void main(String[] args) {
+	        Function<Integer, Integer> factorial = new Function<>() {
+	            @Override
+	            public Integer apply(Integer n) {
+	                return n == 0 ? 1 : n * this.apply(n - 1);
+	            }
+	        };
+	        System.out.println(factorial.apply(5)); // Output: 120
+	    }
+	}
+	// Recursive lambdas can be tricky since they cannot directly reference themselves.
+	// The above example uses an anonymous class to achieve recursion.
+	// This technique can be useful for defining recursive algorithms in a functional style.
+	// However, for more complex recursive scenarios, consider using traditional methods or other design patterns.
+	// Recursive lambdas can be useful for problems like tree traversal, combinatorial generation, etc.
+	// Note: Java does not support direct self-referencing in lambda expressions, hence the use of an anonymous class.
+	// This approach allows the lambda to call itself recursively.
+	//write code for recursive lambda to calculate fibonacci series
+	<!-- Fibonacci series using recursive lambda -->
+	import java.util.function.Function;
+	public class FibonacciLambdaExample {
+        public static void main(String[] args) {
+            Function<Integer, Integer> fibonacci = new Function<>() {
+                @Override
+                public Integer apply(Integer n) {
+                    return n <= 1 ? n : this.apply(n - 1) + this.apply(n - 2);
+                }
+            };
+            int n = 10; // Calculate Fibonacci of 10
+            System.out.println("Fibonacci of " + n + " is: " + fibonacci.apply(n)); // Output: 55
+        }
+    }
+    //write recursive function to calculate factorial using declarative programming style
+    <!-- Factorial using recursive in declarative style -->
+    public class FactorialDeclarativeExample {
+        public static void main(String[] args) {
+            int n = 5; // Calculate factorial of 5
+            System.out.println("Factorial of " + n + " is: " + factorial(n)); // Output: 120
+        }
+
+        public static int factorial(int n) {
+            return n == 0 ? 1 : n * factorial(n - 1);
+        }
+    }
+    <!--find substring in a string using lambda expression-->
+    import java.util.function.BiPredicate;
+        public class SubstringLambdaExample {
+        public static void main(String[] args) {
+            BiPredicate<String, String> contains = (str, sub) -> str.contains(sub);
+            String str = "Hello, World!";
+            String sub = "World";
+            System.out.println("Does the string contain the substring? " + contains.test(str, sub)); // Output: true
+        }
+        
+        /explain Predicate BiPredicate ,Consumer ,Supplier ,Function ,BiFunction with examples
+        // Predicate: Represents a boolean-valued function of one argument.
+        import java.util.function.Predicate;
+        public class PredicateExample {
+            public static void main(String[] args) {
+                Predicate<Integer> isEven = x -> x % 2 == 0;
+                System.out.println("Is 4 even? " + isEven.test(4)); // Output: true
+            }
+        }
+        // BiPredicate: Represents a boolean-valued function of two arguments.
+        import java.util.function.BiPredicate;
+        public class BiPredicateExample {
+            public static void main(String[] args) {
+                BiPredicate<Integer, Integer> isGreater = (x, y) -> x > y;
+                System.out.println("Is 5 greater than 3? " + isGreater.test(5, 3)); // Output: true
+            }
+        }
+        // Consumer: Represents an operation that accepts a single input argument and returns no result.
+        import java.util.function.Consumer;
+        public class ConsumerExample {
+            public static void main(String[] args) {
+                Consumer<String> print = s -> System.out.println(s);
+                print.accept("Hello, World!"); // Output: Hello, World!
+            }
+        }
+        // Supplier: Represents a supplier of results. It takes no arguments and returns a result.
+        import java.util.function.Supplier;
+        public class SupplierExample {
+            public static void main(String[] args) {
+                Supplier<Double> randomValue = () -> Math.random();
+                System.out.println("Random Value: " + randomValue.get()); // Output: Random Value: <some random number>
+            }
+        }
+        // Function: Represents a function that accepts one argument and produces a result.
+        	import java.util.function.Function;
+        	public class FunctionExample {
+            public static void main(String[] args) {
+                Function<Integer, String> intToString = x -> "Number: " + x;
+                System.out.println(intToString.apply(5)); // Output: Number: 5
+            }
+            }
+            // BiFunction: Represents a function that accepts two arguments and produces a result.
+            import java.util.function.BiFunction;
+            public class BiFunctionExample {
+                public static void main(String[] args) {
+                    BiFunction<Integer, Integer, String> sumToString = (x, y) -> "Sum: " + (x + y);
+                    System.out.println(sumToString.apply(3, 4)); // Output: Sum: 7
+                }
+            }
+                // End of functional interface examples
+                	
+                	
+                	
+                	
+    
+
+	// 5. Using Lambdas for Resource Management (try-with-resources)
+	import java.io.BufferedReader;
+	import java.io.FileReader;
+	import java.util.function.Consumer;
+
+	public class LambdaResourceExample {
+	    public static void withFile(String file, Consumer<BufferedReader> consumer) throws Exception {
+	        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+	            consumer.accept(br);
+	        }
+	    }
+	    public static void main(String[] args) throws Exception {
+	        withFile("test.txt", br -> br.lines().forEach(System.out::println));
+	    }
+	}
+	// End of advanced lambda examples
 	7. Stream API (advanced operations, parallel streams)
 	8. Design Patterns (Singleton, Factory, Observer, etc.)
 	9. Java I/O and NIO (Channels, Buffers, Files, WatchService)
